@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:weather_app/widgets/search_field.dart';
 import 'package:weather_app/widgets/weather_data_tile.dart';
 
@@ -78,7 +79,7 @@ class _WeatherPageState extends State<WeatherPage> {
                     ],
                   ),
                   const SizedBox(height: 25),
-                  const Card(
+                  Card(
                       elevation: 5,
                       color: Colors.transparent,
                       child: Padding(
