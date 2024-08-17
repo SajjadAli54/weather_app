@@ -18,14 +18,11 @@ class WeatherService {
     throw Exception("Failed to Load Data");
   }
 
-  Future<Map<String, dynamic>> fetchWeather(String cityName) async {
-    Position position = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 100,
-    ));
+  Future<Map<String, dynamic>> fetchWeather() async {
+    Position? position = await Geolocator.getLastKnownPosition(
+        forceAndroidLocationManager: true);
 
-    double lat = position.latitude, lon = position.longitude;
+    double lat = position!.latitude, lon = position.longitude;
 
     final url =
         "http://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey&units=metric";

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:weather_app/services/weather_service.dart';
 import 'package:weather_app/widgets/search_field.dart';
 import 'package:weather_app/widgets/weather_data_tile.dart';
 
@@ -11,8 +11,34 @@ class WeatherPage extends StatefulWidget {
 }
 
 class _WeatherPageState extends State<WeatherPage> {
+  final service = WeatherService();
+
+  final _searchController = TextEditingController();
+
+  String _bgImage = "assets/images/clear.jpeg";
+  String _iconImg = "assets/images/clear.png";
+  String _cityName = "";
+  double _temperature = 0;
+  double _tempMax = 0, _tempMin = 0;
+  double _humidity = 0;
+  double _windSpeed = 0;
+  double _pressure = 0;
+  double _visibility = 0;
+  double _windDirection = 0;
+  double _sunrise = 0;
+  double _sunset = 0;
+  String _weatherIcon = "";
+  String _weatherCondition = "";
+  String _main = "";
+
+  getData() async {
+    final data = await service.fetchWeather();
+    debugPrint(data.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
+    getData();
     return Scaffold(
       body: Stack(
         children: [
