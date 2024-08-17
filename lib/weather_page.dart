@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:weather_app/services/weather_service.dart';
 import 'package:weather_app/widgets/search_field.dart';
 import 'package:weather_app/widgets/weather_data_tile.dart';
@@ -20,25 +21,55 @@ class _WeatherPageState extends State<WeatherPage> {
   String _cityName = "";
   double _temperature = 0;
   double _tempMax = 0, _tempMin = 0;
-  double _humidity = 0;
+  int _humidity = 0;
+  int _pressure = 0;
   double _windSpeed = 0;
-  double _pressure = 0;
-  double _visibility = 0;
-  double _windDirection = 0;
-  double _sunrise = 0;
-  double _sunset = 0;
+  int _visibility = 0;
+  String _sunrise = "";
+  String _sunset = "";
   String _weatherIcon = "";
   String _weatherCondition = "";
   String _main = "";
 
+  String getTime(int value) {
+    final DateTime date = DateTime.fromMillisecondsSinceEpoch(value * 1000);
+    final String formattedDate = DateFormat('hh:mm a').format(date);
+    return formattedDate;
+  }
+
   getData() async {
-    final data = await service.fetchWeather();
+    final data = await service.getWeather("karachi");
+    final {
+      'weather': weather,
+      'main': main,
+      'visibility': visibility,
+      "wind": wind,
+      "sys": sys
+    } = data;
     debugPrint(data.toString());
+    // debugPrint(main.toString());
+
+    setState(() {
+      _cityName = data["name"];
+      _sunrise = getTime(sys["sunrise"] as int);
+      _sunset = getTime(sys["sunset"] as int);
+      _main = weather.map((w) => w["main"]).join(" ").toString();
+      _weatherCondition =
+          weather.map((w) => w["description"]).join(", ").toString();
+      _temperature = main["temp"] as double;
+      _tempMax = main["feels_like"] as double;
+      _tempMin = main["temp_min"] as double;
+      _humidity = main["humidity"];
+      _pressure = main["pressure"];
+      _visibility = visibility as int;
+      _windSpeed = wind["speed"] as double;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     getData();
+
     return Scaffold(
       body: Stack(
         children: [
@@ -57,29 +88,30 @@ class _WeatherPageState extends State<WeatherPage> {
                   const SizedBox(height: 40),
                   const SearchField(),
                   const SizedBox(height: 20),
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.location_on,
                       ),
                       Text(
-                        "Karachi",
-                        style: TextStyle(
+                        _cityName,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
                         ),
                       )
                     ],
                   ),
-                  const Text(
-                    "39.7 C",
-                    style: TextStyle(fontSize: 90, fontWeight: FontWeight.bold),
+                  Text(
+                    "$_temperature°C",
+                    style: const TextStyle(
+                        fontSize: 90, fontWeight: FontWeight.bold),
                   ),
                   Row(
                     children: [
-                      const Text("Haze",
-                          style: TextStyle(
+                      Text(_main,
+                          style: const TextStyle(
                               fontSize: 40, fontWeight: FontWeight.w500)),
                       Image.asset(
                         "assets/icons/haze.png",
@@ -88,20 +120,27 @@ class _WeatherPageState extends State<WeatherPage> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  const Row(
+                  Text(
+                    _weatherCondition,
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
                     children: [
-                      Icon(Icons.arrow_upward),
+                      const Icon(Icons.arrow_upward),
                       Text(
-                        "35",
-                        style: TextStyle(
+                        "$_tempMax°C",
+                        style: const TextStyle(
                             fontSize: 20, fontStyle: FontStyle.italic),
                       ),
+                      const SizedBox(width: 20),
                       Text(
-                        "25",
-                        style: TextStyle(
+                        "$_tempMin°C",
+                        style: const TextStyle(
                             fontSize: 20, fontStyle: FontStyle.italic),
                       ),
-                      Icon(Icons.arrow_downward)
+                      const Icon(Icons.arrow_downward)
                     ],
                   ),
                   const SizedBox(height: 25),
@@ -109,21 +148,21 @@ class _WeatherPageState extends State<WeatherPage> {
                       elevation: 5,
                       color: Colors.transparent,
                       child: Padding(
-                        padding: EdgeInsets.all(15),
+                        padding: const EdgeInsets.all(15),
                         child: Column(children: [
                           WeatherDataTile(
-                            keys: ["Sun Rise", "Sunset"],
-                            data: ["6:15AM", "6:00PM"],
+                            keys: const ["Sun Rise", "Sunset"],
+                            data: [_sunrise, _sunset],
                           ),
                           const SizedBox(height: 15),
                           WeatherDataTile(
-                            keys: ["Humidity", "Visibility"],
-                            data: ["4", "10000"],
+                            keys: const ["Humidity", "Visibility"],
+                            data: ["$_humidity", "$_visibility"],
                           ),
                           const SizedBox(height: 15),
                           WeatherDataTile(
-                            keys: ["Percipitation", "Speed"],
-                            data: ["6", "45"],
+                            keys: const ["Pressure", "Speed"],
+                            data: ["$_pressure", "$_windSpeed"],
                           ),
                         ]),
                       ))
